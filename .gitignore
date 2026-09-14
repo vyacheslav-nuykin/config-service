@@ -1,0 +1,11 @@
+# Binaries
+config-service
+*.exe
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Env
+.env
