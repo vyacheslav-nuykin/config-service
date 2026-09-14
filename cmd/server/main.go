@@ -21,9 +21,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /", api.RootHandler)
-	mux.HandleFunc("GET /health", api.HealthHandler)
-
+	mux.HandleFunc("GET /", api.Root)
+	mux.HandleFunc("GET /health", api.Health)
+	mux.HandleFunc("GET /info", api.Info)
 
 	server := &http.Server{
 		Addr:    ":" + port,
