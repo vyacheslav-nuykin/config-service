@@ -1,0 +1,32 @@
+services:
+  config-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    container_name: config_service_app
+
+    ports:
+      - "${PORT:-8080}:${PORT:-8080}"
+
+    environment:
+      - PORT=${PORT:-8080}
+      - SERVICE=config-service
+      - VERSION=0.1.0
+
+    restart: unless-stopped
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 128M
+        reservations:
+          memory: 32M
+
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT:-8080}/health"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
