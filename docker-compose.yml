@@ -1,21 +1,46 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: config_service_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-config_service}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-config_service}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          memory: 64M
+
   config-service:
     build:
       context: .
       dockerfile: Dockerfile
-    
     container_name: config_service_app
-
     ports:
       - "${PORT:-8080}:${PORT:-8080}"
-
     environment:
       - PORT=${PORT:-8080}
       - SERVICE=config-service
-      - VERSION=0.1.0
-
+      - VERSION=0.2.0
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-config_service}?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
-
     deploy:
       resources:
         limits:
@@ -23,10 +48,12 @@ services:
           memory: 128M
         reservations:
           memory: 32M
-
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${PORT:-8080}/health"]
       interval: 15s
       timeout: 3s
       retries: 3
       start_period: 5s
+
+volumes:
+  postgres_data:

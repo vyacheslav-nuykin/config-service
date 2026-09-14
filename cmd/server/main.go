@@ -17,7 +17,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /", api.Root)
-	mux.HandleFunc("GET /health", api.Health)
+	mux.HandleFunc("GET /health", api.Health(pool))
 	mux.HandleFunc("GET /info", api.Info)
 
 	server := &http.Server{
