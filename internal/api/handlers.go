@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/vyacheslav-nuykin/config-service/internal/storage"
 )
 
 // For now, we return an error for anything that doesn't relate to our handler.
@@ -18,27 +17,28 @@ func Root(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"error": "Page not found"})
 }
 
-func Health(pool *pgxpool.Pool, w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	serviceStatus := "ok"
-	dbStatus := "ok"
+func Health(pool *pgxpool.Pool) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
+		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
+		defer cancel()
 
-	pool, err := storage.New(ctx, os.Getenv("DATABASE_URL"))
+		if err := pool.Ping(ctx); err != nil {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			json.NewEncoder(w).Encode(map[string]string{
+				"status":   "degraded",
+				"database": "unreachable",
+			})
+			return
+		}
 
-	if err != nil {
-		w.WriteHeader(http.StatusServiceUnavailable)
-		serviceStatus = "degraded"
-		dbStatus = "unreachable"
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(map[string]string{
+			"status":   "ok",
+			"database": "ok",
+		})
 	}
-
-	_ = json.NewEncoder(w).Encode(map[string]string{
-		"status":   serviceStatus,
-		"database": dbStatus,
-	})
 }
 
 func Info(w http.ResponseWriter, r *http.Request) {
