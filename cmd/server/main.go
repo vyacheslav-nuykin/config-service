@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/vyacheslav-nuykin/config-service/internal/api"
 )
 
 func main() {
@@ -18,11 +19,17 @@ func main() {
 		port = "8080"
 	}
 
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("GET /", api.RootHandler)
+	mux.HandleFunc("GET /health", api.HealthHandler)
+
+
 	server := &http.Server{
 		Addr:    ":" + port,
-		Handler: nil,
+		Handler: mux,
 	}
 
-	log.Println("[GO] Started on port: " + port)
+	log.Printf("[GO] Started on port: %s", port)
 	log.Fatal(server.ListenAndServe())
 }
