@@ -28,6 +28,10 @@ func main() {
 	}
 	defer pool.Close()
 
+	if err := storage.RunMigrations(dbURL); err != nil {
+		log.Fatalf("failed to run migrations: %v", err)
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", api.Root)
 	mux.HandleFunc("GET /health", api.Health(pool))

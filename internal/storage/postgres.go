@@ -1,8 +1,9 @@
 package storage
 
 import (
-    "context"
-    "github.com/jackc/pgx/v5/pgxpool"
+	"context"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func New(ctx context.Context, connString string) (*pgxpool.Pool, error) {
@@ -19,6 +20,6 @@ func New(ctx context.Context, connString string) (*pgxpool.Pool, error) {
 		pool.Close()
 		return nil, err
 	}
-	
+
 	return pool, nil
 }
