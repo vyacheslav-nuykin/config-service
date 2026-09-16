@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/vyacheslav-nuykin/config-service/internal/api"
 	"github.com/vyacheslav-nuykin/config-service/internal/storage"
@@ -41,11 +43,31 @@ func main() {
 	mux.HandleFunc("GET /config/{namespace}", api.ListConfigs(pool))
 	mux.HandleFunc("DELETE /config/{namespace}/{key}", api.DeleteConfig(pool))
 
+	stopCtx, stopCancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stopCancel()
+
 	server := &http.Server{
 		Addr:    ":" + port,
 		Handler: mux,
 	}
 
-	log.Printf("[GO] Started on port: %s", port)
-	log.Fatal(server.ListenAndServe())
+	go func() {
+		log.Printf("[GO] Started on port: %s", port)
+		
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("HTTP server error: %v", err)
+		}
+	}()
+
+	<-stopCtx.Done()
+	log.Println("[GO] Shutting down gracefully...")
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutdownCancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		log.Printf("HTTP server Shutdown error: %v", err)
+	}
+
+	log.Println("[GO] Server stopped. Connections closed.")
 }
