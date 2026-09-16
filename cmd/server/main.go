@@ -26,16 +26,18 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
-	defer pool.Close()
 
 	if err := storage.RunMigrations(dbURL); err != nil {
 		log.Fatalf("failed to run migrations: %v", err)
 	}
+	defer pool.Close()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", api.Root)
 	mux.HandleFunc("GET /health", api.Health(pool))
 	mux.HandleFunc("GET /info", api.Info)
+	mux.HandleFunc("POST /config/{namespace}/{key}", api.SetConfig(pool))
+	mux.HandleFunc("GET /config/{namespace}/{key}", api.GetConfig(pool))
 
 	server := &http.Server{
 		Addr:    ":" + port,
