@@ -185,7 +185,7 @@ func DeleteConfig(pool *pgxpool.Pool) http.HandlerFunc {
 			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 			return
 		}
-		
+
 		if rowsAffected == 0 {
 			w.WriteHeader(http.StatusNotFound)
 			json.NewEncoder(w).Encode(map[string]string{"error": "Config not found"})

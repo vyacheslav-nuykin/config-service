@@ -72,12 +72,12 @@ func ListConfigs(ctx context.Context, pool *pgxpool.Pool, namespace string) (map
 }
 
 func DeleteConfig(ctx context.Context, pool *pgxpool.Pool, namespace, key string) (int64, error) {
-    query := `DELETE FROM configs WHERE namespace = $1 AND key = $2;`
+	query := `DELETE FROM configs WHERE namespace = $1 AND key = $2;`
 
-    exec, err := pool.Exec(ctx, query, namespace, key)
-    if err != nil {
-        return 0, fmt.Errorf("delete config: %w", err)
-    }
+	exec, err := pool.Exec(ctx, query, namespace, key)
+	if err != nil {
+		return 0, fmt.Errorf("delete config: %w", err)
+	}
 
-    return exec.RowsAffected(), nil
+	return exec.RowsAffected(), nil
 }

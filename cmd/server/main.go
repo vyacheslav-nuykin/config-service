@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/vyacheslav-nuykin/config-service/internal/api"
 	"github.com/vyacheslav-nuykin/config-service/internal/storage"
@@ -32,7 +34,6 @@ func main() {
 	if err := storage.RunMigrations(dbURL); err != nil {
 		log.Fatalf("failed to run migrations: %v", err)
 	}
-	defer pool.Close()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", api.Root)
@@ -46,15 +47,16 @@ func main() {
 	stopCtx, stopCancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stopCancel()
 
+	handler := api.Logger(mux)
 	server := &http.Server{
 		Addr:    ":" + port,
-		Handler: mux,
+		Handler: handler,
 	}
 
 	go func() {
 		log.Printf("[GO] Started on port: %s", port)
-		
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalf("HTTP server error: %v", err)
 		}
 	}()
@@ -69,5 +71,6 @@ func main() {
 		log.Printf("HTTP server Shutdown error: %v", err)
 	}
 
+	defer pool.Close()
 	log.Println("[GO] Server stopped. Connections closed.")
 }

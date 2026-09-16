@@ -35,7 +35,7 @@ services:
     environment:
       - PORT=${PORT:-8080}
       - SERVICE=config-service
-      - VERSION=0.3.0
+      - VERSION=0.2.0
       - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-config_service}?sslmode=disable
     depends_on:
       postgres:
