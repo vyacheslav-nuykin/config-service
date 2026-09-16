@@ -38,6 +38,8 @@ func main() {
 	mux.HandleFunc("GET /info", api.Info)
 	mux.HandleFunc("POST /config/{namespace}/{key}", api.SetConfig(pool))
 	mux.HandleFunc("GET /config/{namespace}/{key}", api.GetConfig(pool))
+	mux.HandleFunc("GET /config/{namespace}", api.ListConfigs(pool))
+	mux.HandleFunc("DELETE /config/{namespace}/{key}", api.DeleteConfig(pool))
 
 	server := &http.Server{
 		Addr:    ":" + port,
