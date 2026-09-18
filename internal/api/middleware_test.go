@@ -27,3 +27,18 @@ func TestLogger(t *testing.T) {
 		t.Errorf("expected body 'OK', got '%s'", rr.Body.String())
 	}
 }
+
+func TestLogger_CapturesNon200Status(t *testing.T) {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	})
+	logged := Logger(handler)
+
+	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+	rr := httptest.NewRecorder()
+	logged.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusNotFound {
+		t.Errorf("expected 404, got %d", rr.Code)
+	}
+}
