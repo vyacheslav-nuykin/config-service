@@ -1,5 +1,7 @@
 # config-service
 
+[![CI](https://github.com/vyacheslav-nuykin/config-service/actions/workflows/ci.yml/badge.svg)](https://github.com/vyacheslav-nuykin/config-service/actions/workflows/ci.yml)
+
 A small configuration service for my infrastructure. Stores service
 configs in PostgreSQL and serves them over HTTP.
 
