@@ -1,11 +1,46 @@
-# Binaries
 config-service
+bin/
+build/
+dist/
 *.exe
+*.exe~
+*.dll
+*.so
+*.dylib
 
-# IDE
+*.test
+*.out
+coverage.txt
+coverage.html
+*.prof
+
+go.work
+go.work.sum
+
+.env
+.env.*
+!.env.example
+
+*.local.yaml
+*.local.json
+
 .idea/
 .vscode/
 *.iml
+*.swp
+*.swo
+*~
 
-# Env
-.env
+.DS_Store
+Thumbs.db
+.directory
+
+docker-compose.override.yml
+postgres_data/
+pgdata/
+data/
+
+*.log
+logs/
+tmp/
+temp/
