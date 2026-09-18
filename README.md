@@ -83,17 +83,15 @@ Requires Go 1.25+ and Docker.
 # Start only the database
 docker compose up -d postgres
 
-# Run the service with hot reload
+# Run the service
 go run ./cmd/server
 ```
 
-Copy `.env.example` to `.env` and adjust if needed:
+Defaults match the docker-compose config. To override, set environment
+variables before `go run`, for example:
 
-```
-PORT=8080
-SERVICE=config-service
-VERSION=0.4.0
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/config_service?sslmode=disable
+```bash
+DATABASE_URL=postgres://user:pass@host:5432/db go run ./cmd/server
 ```
 
 ## Tests
