@@ -28,6 +28,14 @@ func New(baseURL string) *Client {
 	}
 }
 
+func configPath(namespace string, key string) []string {
+	parts := []string{"api", "v1", "config", url.PathEscape(namespace)}
+	if key != "" {
+		parts = append(parts, url.PathEscape(key))
+	}
+	return parts
+}
+
 func (c *Client) do(ctx context.Context, method string, parts []string, body any) (*http.Response, error) {
 	u, err := url.JoinPath(c.baseURL, parts...)
 	if err != nil {
@@ -64,7 +72,7 @@ func checkStatus(resp *http.Response) error {
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("unexpected status %d: %s", resp.StatusCode, body)
+		return fmt.Errorf("unexpected status %d: %s", resp.StatusCode, string(body))
 	}
 	return nil
 }
@@ -74,7 +82,7 @@ func drain(resp *http.Response) {
 }
 
 func (c *Client) Get(ctx context.Context, namespace, key string) (string, error) {
-	resp, err := c.do(ctx, http.MethodGet, []string{"api", "v1", "config", namespace, key}, nil)
+	resp, err := c.do(ctx, http.MethodGet, configPath(namespace, key), nil)
 	if err != nil {
 		return "", err
 	}
@@ -95,7 +103,7 @@ func (c *Client) Get(ctx context.Context, namespace, key string) (string, error)
 
 func (c *Client) Set(ctx context.Context, namespace, key, value string) error {
 	body := map[string]string{"value": value}
-	resp, err := c.do(ctx, http.MethodPost, []string{"api", "v1", "config", namespace, key}, body)
+	resp, err := c.do(ctx, http.MethodPost, configPath(namespace, key), body)
 	if err != nil {
 		return err
 	}
@@ -109,7 +117,7 @@ func (c *Client) Set(ctx context.Context, namespace, key, value string) error {
 }
 
 func (c *Client) List(ctx context.Context, namespace string) (map[string]string, error) {
-	resp, err := c.do(ctx, http.MethodGet, []string{"api", "v1", "config", namespace}, nil)
+	resp, err := c.do(ctx, http.MethodGet, configPath(namespace, ""), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +140,7 @@ func (c *Client) List(ctx context.Context, namespace string) (map[string]string,
 }
 
 func (c *Client) Delete(ctx context.Context, namespace, key string) error {
-	resp, err := c.do(ctx, http.MethodDelete, []string{"api", "v1", "config", namespace, key}, nil)
+	resp, err := c.do(ctx, http.MethodDelete, configPath(namespace, key), nil)
 	if err != nil {
 		return err
 	}

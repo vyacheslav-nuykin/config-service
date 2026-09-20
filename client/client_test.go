@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/vyacheslav-nuykin/config-service/client"
@@ -194,5 +195,25 @@ func TestClient_Delete_NotFound(t *testing.T) {
 	err := c.Delete(context.Background(), "my-ns", "missing")
 	if !errors.Is(err, client.ErrNotFound) {
 		t.Errorf("want ErrNotFound, got %v", err)
+	}
+}
+
+func TestClient_Get_EscapesPathSegments(t *testing.T) {
+	var gotRawPath string
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotRawPath = r.URL.RawPath
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer srv.Close()
+
+	c := client.New(srv.URL)
+	_, _ = c.Get(context.Background(), "my/ns", "a..b")
+
+	if !strings.Contains(gotRawPath, "my%2Fns") {
+		t.Errorf("namespace slash not escaped in RawPath: %q", gotRawPath)
+	}
+	if strings.Contains(gotRawPath, "/my/ns/") {
+		t.Errorf("namespace slash leaked into path: %q", gotRawPath)
 	}
 }
