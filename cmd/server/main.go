@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/vyacheslav-nuykin/config-service/internal/api"
+	"github.com/vyacheslav-nuykin/config-service/internal/api/v1"
 	"github.com/vyacheslav-nuykin/config-service/internal/storage"
 )
 
@@ -37,12 +37,12 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", api.Root)
-	mux.HandleFunc("GET /health", api.Health(pool))
-	mux.HandleFunc("GET /info", api.Info)
-	mux.HandleFunc("POST /config/{namespace}/{key}", api.SetConfig(pool))
-	mux.HandleFunc("GET /config/{namespace}/{key}", api.GetConfig(pool))
-	mux.HandleFunc("GET /config/{namespace}", api.ListConfigs(pool))
-	mux.HandleFunc("DELETE /config/{namespace}/{key}", api.DeleteConfig(pool))
+	mux.HandleFunc("GET /api/v1/health", api.Health(pool))
+	mux.HandleFunc("GET /api/v1/info", api.Info)
+	mux.HandleFunc("POST /api/v1/config/{namespace}/{key}", api.SetConfig(pool))
+	mux.HandleFunc("GET /api/v1/config/{namespace}/{key}", api.GetConfig(pool))
+	mux.HandleFunc("GET /api/v1/config/{namespace}", api.ListConfigs(pool))
+	mux.HandleFunc("DELETE /api/v1/config/{namespace}/{key}", api.DeleteConfig(pool))
 
 	stopCtx, stopCancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stopCancel()

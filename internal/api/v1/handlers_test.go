@@ -207,7 +207,7 @@ func TestRoot(t *testing.T) {
 }
 
 func TestInfo(t *testing.T) {
-	req := httptest.NewRequest(http.MethodGet, "/info", nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/info", nil)
 	rr := httptest.NewRecorder()
 	Info(rr, req)
 
@@ -232,7 +232,7 @@ func TestInfo(t *testing.T) {
 	defer os.Unsetenv("SERVICE")
 	defer os.Unsetenv("VERSION")
 
-	req = httptest.NewRequest(http.MethodGet, "/info", nil)
+	req = httptest.NewRequest(http.MethodGet, "/api/v1/info", nil)
 	rr = httptest.NewRecorder()
 	Info(rr, req)
 
@@ -246,7 +246,7 @@ func TestInfo(t *testing.T) {
 }
 
 func TestHealth(t *testing.T) {
-	req := httptest.NewRequest(http.MethodGet, "/health", nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/health", nil)
 	rr := httptest.NewRecorder()
 
 	handler := Health(testPool)
@@ -327,7 +327,7 @@ func TestSetConfig(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_, _ = storage.DeleteConfig(context.Background(), testPool, tt.namespace, tt.key)
 
-			req := httptest.NewRequest(http.MethodPost, "/config/x/x", bytes.NewBufferString(tt.body))
+			req := httptest.NewRequest(http.MethodPost, "/api/v1/config/x/x", bytes.NewBufferString(tt.body))
 			req.SetPathValue("namespace", tt.namespace)
 			req.SetPathValue("key", tt.key)
 			rr := httptest.NewRecorder()
@@ -411,7 +411,7 @@ func TestGetConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodGet, "/config/x/x", nil)
+			req := httptest.NewRequest(http.MethodGet, "/api/v1/config/x/x", nil)
 			req.SetPathValue("namespace", tt.namespace)
 			req.SetPathValue("key", tt.key)
 			rr := httptest.NewRecorder()
@@ -488,7 +488,7 @@ func TestListConfigs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest(http.MethodGet, "/config/x", nil)
+			req := httptest.NewRequest(http.MethodGet, "/api/v1/config/x", nil)
 			req.SetPathValue("namespace", tt.namespace)
 			rr := httptest.NewRecorder()
 
@@ -575,7 +575,7 @@ func TestDeleteConfig(t *testing.T) {
 				}
 			}
 
-			req := httptest.NewRequest(http.MethodDelete, "/config/x/x", nil)
+			req := httptest.NewRequest(http.MethodDelete, "/api/v1/config/x/x", nil)
 			req.SetPathValue("namespace", tt.namespace)
 			req.SetPathValue("key", tt.key)
 			rr := httptest.NewRecorder()
