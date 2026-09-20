@@ -107,13 +107,16 @@ Tests require a running Postgres. Use the one from `docker compose` or set
 
 ```
 config-service/
-├── client/
+├── client/                    # Public Go client
 │   └── client.go
-├── cmd/server/           # Entry point
+├── cmd/server/                # Entry point
 ├── internal/
-│   ├── api/v1/              # HTTP handlers, middleware, validation
-│   └── storage/          # PostgreSQL layer, migrations
-├── migrations/           # SQL migrations (embedded in binary)
+│   ├── api/v1/                # HTTP handlers, middleware, validation
+│   └── storage/
+│       ├── migrations/        # SQL files (embedded in binary)
+│       ├── config.go
+│       ├── migrate.go
+│       └── postgres.go
 ├── Dockerfile
 └── docker-compose.yml
 ```
