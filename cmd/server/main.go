@@ -71,6 +71,6 @@ func main() {
 		log.Printf("HTTP server Shutdown error: %v", err)
 	}
 
-	defer pool.Close()
+	pool.Close()
 	log.Println("[GO] Server stopped. Connections closed.")
 }

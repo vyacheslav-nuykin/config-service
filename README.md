@@ -77,7 +77,7 @@ curl -X DELETE http://localhost:8080/api/v1/config/webhook-service/PORT
 
 ## Local development
 
-Requires Go 1.25+ and Docker.
+Requires Go 1.27+ and Docker.
 
 ```bash
 # Start only the database
@@ -107,6 +107,8 @@ Tests require a running Postgres. Use the one from `docker compose` or set
 
 ```
 config-service/
+├── client/
+│   └── client.go
 ├── cmd/server/           # Entry point
 ├── internal/
 │   ├── api/v1/              # HTTP handlers, middleware, validation
@@ -116,9 +118,18 @@ config-service/
 └── docker-compose.yml
 ```
 
+## Secrets
+
+Config Service is for **non-sensitive** values: ports, URLs, timeouts,
+feature toggles.
+
+Secrets (database passwords, HMAC keys, API tokens) go in **environment
+variables**, not in Config Service. This keeps the database free of
+credentials and lets you rotate secrets without touching the service.
+
 ## Stack
 
-- Go 1.25
+- Go 1.27
 - PostgreSQL 16
 - `pgx/v5` for the database
 - `golang-migrate` for migrations
